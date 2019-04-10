@@ -6,11 +6,11 @@ N'hésitez pas à contribuer à ce projet, en améliorant le code et les graphqi
 
 ## Intention de vote
 Mise à jour 2019-04-10
-![alt text](export/sondages/2019-04-08.png)
+![alt text](export/sondages/2019-04-10.png)
 
 ## Nombre de sièges obtenus
 Mise à jour 2019-04-10
-![alt text](export/pie_chart_sieges/2019-04-08.png)
+![alt text](export/pie_chart_sieges/2019-04-10.png)
 
 ### Légende
 

@@ -91,18 +91,19 @@ def calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, export):
 
     partis.pop(-1) #Suppression de "Autres"
     colors.pop(-1)
-    print(res_dernier_sondages_dic)
+
     for i in res_dernier_sondages_dic:
-        if i<5:
-            res_dernier_sondages_dic[cpt]=0 #Aucun siège si résultat < 5%
+        if (i<5) or not (i>=0):
+            res_dernier_sondages_dic[cpt]=0 #Aucun siège si résultat < 5% ou si données non disponible (not i>=0)
         cpt += 1
 
+    print(res_dernier_sondages_dic)
     sieges_obtenus = (res_dernier_sondages_dic * 74 / 100).astype(int)
-
-
+    print(sieges_obtenus)
     ##########
     # Attribution des sièges restants un à un
     ##########
+
     rest = nb_sieges - sum(sieges_obtenus)
 
     while rest > 0:
