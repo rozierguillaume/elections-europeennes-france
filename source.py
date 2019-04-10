@@ -1,3 +1,6 @@
+# (c) Guillaume Rozier, 2019
+# Projet Open-Source, license AGPL
+
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
