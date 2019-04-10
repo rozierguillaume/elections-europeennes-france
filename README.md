@@ -12,6 +12,20 @@ Mise à jour 2019-04-10
 Mise à jour 2019-04-10
 ![alt text](export/pie_chart_sieges/2019-04-08.png)
 
+### Légende
+
+| Initiales | Parti politique | Initiales | Parti politique |
+|---|---|---|---|
+| LO | Lutte Ouvrière | R! | Resistons! |
+| NPA | Nouveau Parti Anticapitaliste | LR | Les Républicains |
+| PCF | Parti Communiste Français | DLF | Debout La France |
+| FI | France Insoumise | RN | Rassemblement National |
+| GEN-S | Génération•s | LP | Les Patriotes |
+| PS-PP | Parti Socialiste - Place Publique| UPR | Union Populaire Républicaine |
+| EELV | Europe Écologie Les Verts | GJ | Gilets Jaunes |
+| LREM-MODEM | La République en Marche et ses alliés | Autres | Autres |
+| UDI| Union des Démocrates et Indépendants | | |
+
 ### Sources
 [Rolling Ifop](https://dataviz.ifop.com/IFOP_ROLLING_EUROPE/TELECHARGEMENT/IFOP_EURO-ROLLING_2019-04-08.pdf)
 
