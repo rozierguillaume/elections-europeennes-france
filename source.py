@@ -46,10 +46,10 @@ donnees = [donnees[i].astype(float) for i in range(0, len(donnees))]
 # Plot sondages
 ##########
 def plot_sondages(dates, donnees, colors, export):
-    grid = plt.GridSpec(4, 8, wspace=0.4, hspace=0.3)
+    grid = plt.GridSpec(10, 10, wspace=0.4, hspace=0.3)
 
-    fig = plt.figure(figsize=(13,7))
-    ax = fig.add_subplot(grid[:,:7])
+    fig = plt.figure(figsize=(15,8))
+    ax = fig.add_subplot(grid[:9,:9])
     fig.suptitle('Intention de vote aux élections européennes en France (hypothèses liste gilets jaunes et UK dans UE)')
     plt.xlabel('Dates')
     plt.ylabel('Intention de vote (%)')
@@ -60,11 +60,13 @@ def plot_sondages(dates, donnees, colors, export):
         x,y = zip(*sorted((xVal, np.mean([yVal for a, yVal in zip(dates_timestamp, d) if xVal==a])) for xVal in set(dates_timestamp)))
         interp = scipy.interpolate.interp1d(x, y)
 
-        ax.plot(dates, d, '.',color=colors[i]) #plot points
+        ax.plot(dates, d, '.', color=colors[i]) #plot points
         ax.plot(dates, [interp(x) for x in dates_timestamp], color=colors[i], label=partis[i]) #plot interpolation
         ax.legend(bbox_to_anchor=(0.75, 0.35, 0.5, 0.5))
-
-        #plt.plot()
+    plt.xticks(dates, dates, rotation=30, horizontalalignment='right')
+    ax.grid(True, which='major', linestyle='-', alpha=0.6)
+    plt.minorticks_on()
+    ax.grid(True, which='minor', linestyle=':', alpha=0.2)
 
     if export == True:
         fig.savefig('export/sondages/'+max(dates), dpi=300)
