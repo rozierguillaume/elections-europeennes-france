@@ -12,7 +12,7 @@ import scipy.interpolate
 sondages_dic = {}
 nb_sieges = 74 #Hypothèse UK dans l'europe
 sondages = []
-colors = ['#e6b8af', '#990000', '#e06666', '#cc0000', '#f4cccc', '#ff0e78', '#6aa84f', '#35a9dc', '#00ffff', '#316395', '#1155cc', '#c27ba0', '#073763', '#999999', '#ead1dc', '#ffff00', '#9fc5e8']
+colors = ['#e6b8af', '#990000', '#e06666', '#cc0000', '#f4cccc', '#ff0e78', '#6aa84f', '#35a9dc', '#00ffff', '#316395', '#1155cc', '#c27ba0', '#073763', '#999999', '#ead1dc', '#e0e000', '#9fc5e8']
 
 #build 'sondages_dic' dictionary
 with open("sondages/sondages_hyp_GJ.csv") as csv_file:
@@ -50,7 +50,7 @@ def plot_sondages(dates, donnees, colors, export):
 
     fig = plt.figure(figsize=(15,8))
     ax = fig.add_subplot(grid[:9,:9])
-    fig.suptitle('Intention de vote aux élections européennes en France (hypothèses liste gilets jaunes et UK dans UE)')
+    fig.suptitle('Intention de vote aux élections européennes en France\n(hypothèses liste gilets jaunes et UK dans UE)', fontsize=15)
     plt.xlabel('Dates')
     plt.ylabel('Intention de vote (%)')
     dates_timestamp = [float(time.mktime(datetime.datetime.strptime(s, "%Y-%m-%d").timetuple())) for s in dates]
@@ -60,8 +60,8 @@ def plot_sondages(dates, donnees, colors, export):
         x,y = zip(*sorted((xVal, np.mean([yVal for a, yVal in zip(dates_timestamp, d) if xVal==a])) for xVal in set(dates_timestamp)))
         interp = scipy.interpolate.interp1d(x, y)
 
-        ax.plot(dates, d, '.', color=colors[i]) #plot points
-        ax.plot(dates, [interp(x) for x in dates_timestamp], color=colors[i], label=partis[i]) #plot interpolation
+        ax.plot(dates, d, 'o', color=colors[i]) #plot points
+        ax.plot(dates, [interp(x) for x in dates_timestamp], color=colors[i], label=partis[i], linewidth=1.5) #plot interpolation
         ax.legend(bbox_to_anchor=(0.75, 0.35, 0.5, 0.5))
     plt.xticks(dates, dates, rotation=30, horizontalalignment='right')
     ax.grid(True, which='major', linestyle='-', alpha=0.6)
@@ -69,7 +69,7 @@ def plot_sondages(dates, donnees, colors, export):
     ax.grid(True, which='minor', linestyle=':', alpha=0.2)
 
     if export == True:
-        fig.savefig('export/sondages/'+max(dates), dpi=300)
+        fig.savefig('export/sondages/'+max(dates), dpi=200)
 
 
 ##########
@@ -97,9 +97,8 @@ def calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, export):
             res_dernier_sondages_dic[cpt]=0 #Aucun siège si résultat < 5% ou si données non disponible (not i>=0)
         cpt += 1
 
-    print(res_dernier_sondages_dic)
     sieges_obtenus = (res_dernier_sondages_dic * 74 / 100).astype(int)
-    print(sieges_obtenus)
+
     ##########
     # Attribution des sièges restants un à un
     ##########
@@ -131,10 +130,11 @@ def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
 
     ax2.pie(sieges_obtenus, labels=partis, autopct=lambda p: '{:.0f} sièges'.format(sum(sieges_obtenus)*p/100), startangle=90, colors=colors)
     ax2.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    fig2.suptitle('Projection nombre de siège, dernier sondage\n(hypothèses liste gilets jaunes et UK dans UE)', fontsize=15)
 
     #plt.show()
     if export == True:
-        fig2.savefig('export/pie_chart_sieges/'+max(dates), dpi=300)
+        fig2.savefig('export/pie_chart_sieges/'+max(dates), dpi=200)
 
 plot_sondages(dates, donnees, colors, True)
 partis, sieges_obtenus = calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, True)
