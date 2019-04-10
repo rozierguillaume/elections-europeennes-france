@@ -1,4 +1,4 @@
-# Élections eruopéennes 2019 en France
+# Élections européennes 2019 en France
 Aggrégation de sondages et graphiques à propos des élections européennes ayant lieu en mai 2019 en France.
 Hypothèses : liste Gilets Jaunes, UK encore dans l'UE (donc 74 sièges attribuables à la France).
 
