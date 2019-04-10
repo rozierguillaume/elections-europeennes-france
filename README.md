@@ -1,17 +1,31 @@
 # Élections européennes 2019 en France
+## Introduction
 Aggrégation de sondages et graphiques à propos des élections européennes ayant lieu en mai 2019 en France.
 Hypothèses : liste Gilets Jaunes, UK encore dans l'UE (donc 74 sièges attribuables à la France).
 
-N'hésitez pas à contribuer à ce projet, en améliorant le code et les graphqiques, ou en ajoutant les sondages au fichier .csv au fur et à mesure.
+N'hésitez pas à contribuer à ce projet, en améliorant le code et les graphqiques, ou en ajoutant les sondages au fichier `Sondages/Sondages_hyp_GJ.csv` au fur et à mesure.
 
-## Intention de vote
+Les sondages proviennent des principaux institus français, à savoir Harris et Ifop entre autres (voir section *Sources*).
+
+## Résultats
+### Intention de vote
 Mise à jour 2019-04-10
+
+Intention de vote des électeurs français aux élections européennes de 2019.
 <img src="export/sondages/2019-04-10.png" alt="drawing" height="500"/>
 
-## Nombre de sièges obtenus
+### Nombre de sièges obtenus
 Mise à jour 2019-04-10
+
+Mode de scrutin :
+> "La loi du 25 juin 2018 relative à l’élection des représentants au Parlement européen rétablit une circonscription unique qui était déjà en vigueur avant les élections de 2004 (pour les élections de 2004 et de 2009, le territoire était découpé en 8 circonscriptions régionales, 7 pour la métropole, 1 pour l’outre-mer).
+
+> Les élections européennes ont lieu au suffrage universel direct à un tour. Les candidats sont élus pour cinq ans selon les règles de la représentation proportionnelle à scrutin de liste à la plus forte moyenne. Les partis ayant obtenu plus de 5% des suffrages bénéficient d’un nombre de sièges proportionnel à leur nombre de voix." 
+[Source](https://www.vie-publique.fr/actualite/faq-citoyens/elections-europeennes-2019/#art15058)
+
 <img src="export/pie_chart_sieges/2019-04-10.png" alt="drawing" height="500"/>
 
+## 
 ### Légende
 
 | Initiales | Parti politique | Initiales | Parti politique |
