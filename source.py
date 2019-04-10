@@ -118,7 +118,7 @@ def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
     #Graph Pie Chart
     ##########
 
-    fig2, ax2 = plt.subplots()
+    fig2, ax2 = plt.subplots(figsize=(8,8))
     partis2=partis
     cpt_suppr=0
     for i in range(0, len(sieges_obtenus)):
