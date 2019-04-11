@@ -8,39 +8,58 @@ import time
 import datetime
 import scipy
 import scipy.interpolate
+import json
 
-sondages_dic = {}
-nb_sieges = 74 #Hypothèse UK dans l'europe
-sondages = []
 colors = ['#e6b8af', '#990000', '#e06666', '#cc0000', '#f4cccc', '#ff0e78', '#6aa84f', '#35a9dc', '#00ffff', '#316395', '#1155cc', '#c27ba0', '#073763', '#999999', '#ead1dc', '#e0e000', '#9fc5e8']
+nb_sieges = 74 #Hypothèse UK dans l'europe
 
-#build 'sondages_dic' dictionary
-with open("sondages/sondages_hyp_GJ.csv") as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=",")
-    line_count=0
-    for row in csv_reader:
-        sondages = sondages + [row]
-        if line_count==0:
-            partis = row[2:]
-        else:
-            sondages_dic[row[0]]={}
-            sondage_str =  np.array([row[i] for i in range(2,19)])
-            sondage_str[sondage_str == ''] = float("nan") #données manquantes
-            sondages_dic[row[0]]["resultats"] = sondage_str.astype(float)
-        line_count+=1
+##########
+# Lecture csv sondages
+##########
+def read_sondages(path):
+    sondages = []
+    sondages_dic = {}
+    #build 'sondages_dic' dictionary
+    with open(path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        line_count = 0
+        for row in csv_reader:
+            sondages = sondages + [row]
+            if line_count==0:
+                partis = row[2:]
+            else:
+                #sondages_dic[row[0]]=np.array([])
 
-def replace_x_by_y(x, y, object):
-    for a in range(0, len(object)):
-        for i in range(0, len(object[a])):
-            if object[a][i] == x:
-                object[a][i] = y
-    return object
+                sondage_str =  np.array([row[i] for i in range(2,19)])
+                sondage_str[sondage_str == ''] = float("nan") #données manquantes
+                sondages_dic[line_count] = {}
+                sondages_dic[line_count]={"date":row[0], "resultats":sondage_str.astype(float)}
 
-dates = np.array([x[0] for x in sondages[1:]])
-donnees = np.array([ np.array(d[2:]) for d in np.asarray(sondages[1:]) ])
-donnees = replace_x_by_y('', float("nan"), donnees) #données manquantes
-donnees = [donnees[i].astype(float) for i in range(0, len(donnees))]
+                #if row[0] in sondages_dic:
+                    #sondages_dic[row[0]] = np.vstack((sondages_dic[row[0]], sondage_str.astype(float)))
+                #else:
+                    #sondages_dic[row[0]] = np.array([sondage_str.astype(float)])
 
+            line_count+=1
+    #print(sondages_dic)
+
+    def replace_x_by_y(x, y, object):
+        for a in range(0, len(object)):
+            for i in range(0, len(object[a])):
+                if object[a][i] == x:
+                    object[a][i] = y
+        return object
+
+    dates = np.array([x[0] for x in sondages[1:]])
+    donnees = np.array([ np.array(d[2:]) for d in np.asarray(sondages[1:]) ])
+    donnees = replace_x_by_y('', float("nan"), donnees) #données manquantes
+    donnees = [donnees[i].astype(float) for i in range(0, len(donnees))]
+
+    return dates, donnees, partis, sondages_dic
+
+    ##########
+    # Plot sondages
+    ##########
 
 ##########
 # Plot sondages
@@ -73,7 +92,7 @@ def plot_sondages(dates, donnees, colors, export):
 
 
 ##########
-#Pie chart
+# Calcul du nombre de sièges obtenus
 ##########
 def calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, export):
 
@@ -82,36 +101,52 @@ def calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, export):
     # sieges_obtenus = resultat * nb_sieges
     ##########
 
-    for i in sondages_dic:
-        sondages_dic[i]['resultats'] = sondages_dic[i]['resultats'][:-1]
-
-    res_dernier_sondages_dic = sondages_dic[max(sondages_dic)]['resultats']
-
-    cpt=0
-
     partis.pop(-1) #Suppression de "Autres"
     colors.pop(-1)
 
-    for i in res_dernier_sondages_dic:
-        if (i<5) or not (i>=0):
-            res_dernier_sondages_dic[cpt]=0 #Aucun siège si résultat < 5% ou si données non disponible (not i>=0)
-        cpt += 1
-
-    sieges_obtenus = (res_dernier_sondages_dic * 74 / 100).astype(int)
+    for id in sondages_dic:
+        sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'][:-1] #suppression de "Autres"
+        sondages_dic[id]['sieges'] = (sondages_dic[id]['resultats'] * 74 / 100).astype(int)
+        cpt = 0
+        for val in sondages_dic[id]['resultats']:
+            if (val < 5) or not (val >= 0):
+                sondages_dic[id]['sieges'][cpt] = 0 #Aucun siège si résultat < 5% ou si données non disponible (not i>=0)
+            cpt += 1
 
     ##########
     # Attribution des sièges restants un à un
     ##########
 
-    rest = nb_sieges - sum(sieges_obtenus)
+    reste = nb_sieges - sum(sondages_dic[id]['sieges'])
 
-    while rest > 0:
-        indice_siege_restant = np.argmax(sondages_dic[max(sondages_dic)]['resultats']/(sieges_obtenus+1))
-        sieges_obtenus[indice_siege_restant] += 1
-        rest = nb_sieges - sum(sieges_obtenus)
+    while reste > 0:
+        indice_siege_restant = np.argmax(sondages_dic[id]['resultats']/(sondages_dic[id]['sieges']+1))
+        sondages_dic[id]['sieges'][indice_siege_restant] += 1
+        reste = nb_sieges - sum(sondages_dic[id]['sieges'])
 
-    return partis, sieges_obtenus
+    for id in sondages_dic:
+         sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'].tolist()
+         sondages_dic[id]['sieges'] = sondages_dic[id]['sieges'].tolist()
 
+    if export == True:
+        with open('export/data/sondages_avec_sieges.json', 'w') as file:
+            json.dump(sondages_dic, file, indent=4)
+
+    return partis, sondages_dic
+
+##########
+# Export sieges obtenus
+##########
+
+def export_sieges(partis, sondages_dic):
+    for i in sondages_dic:
+
+        calcul_sieges_obtenus(partis, sondages_dic[sondages_dic]['resultats'], nb_sieges, colors, True)
+
+
+##########
+# Pie chart sieges obtenus (dernier sondage uniquement)
+##########
 def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
 
     ##########
@@ -121,6 +156,8 @@ def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
     fig2, ax2 = plt.subplots(figsize=(8,8))
     partis2=partis
     cpt_suppr=0
+    print(len(partis))
+    print(len(sieges_obtenus))
     for i in range(0, len(sieges_obtenus)):
         if sieges_obtenus[i-cpt_suppr]==0: #Suppresion des partis n'ayant pas de siège
             sieges_obtenus = np.delete(sieges_obtenus, i-cpt_suppr)
@@ -136,6 +173,12 @@ def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
     if export == True:
         fig2.savefig('export/pie_chart_sieges/'+max(dates), dpi=200)
 
+
+##########
+# Run
+##########
+dates, donnees, partis, sondages_dic = read_sondages("sondages/sondages_hyp_GJ.csv")
 plot_sondages(dates, donnees, colors, True)
-partis, sieges_obtenus = calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, True)
-plot_sieges_pie_chart(partis, sieges_obtenus, colors, export=True)
+partis, sondages_dic = calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, True)
+#print(sondages_dic)
+plot_sieges_pie_chart(partis, sondages_dic[max(sondages_dic)]['sieges'], colors, export=True)
