@@ -22,10 +22,10 @@ def read_sondages(path):
     #build 'sondages_dic' dictionary
     with open(path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
-        line_count = 0
+        line_count = -1
         for row in csv_reader:
             sondages = sondages + [row]
-            if line_count==0:
+            if line_count==-1:
                 partis = row[2:]
             else:
                 #sondages_dic[row[0]]=np.array([])
@@ -95,47 +95,67 @@ def plot_sondages(dates, donnees, colors, export):
 # Calcul du nombre de sièges obtenus
 ##########
 def calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, export):
+    n = len(sondages_dic)
+    nb_sieges_restant = [nb_sieges] * (n)
+
+    ##########
+    # Prime majoritaire
+    # Calcul du nb de sieges 's' obtenus par la liste majoritaire (s'il y en a une)
+    ##########
+    s = [0] * (n)   #Liste nb de sièges liste maj. (0 si aucune liste maj.)
+    id_s = [0] * (n)    #Liste d'ID de sondages. !=0 s'il y a une liste maj. dans le sondage.
+    index = [0] * (n)
+    for id in sondages_dic:
+        for res in sondages_dic[id]['resultats']:
+            if res >= 50:
+                if nb_sieges > 4:   #nb de sieges par liste majoritaire (0 si aucune liste maj.)
+                    s[id] = int(nb_sieges/2)+1
+                else:
+                    s[id] = int(nb_sieges/2)
+                nb_sieges_restant[id] = nb_sieges - s[id]
+                index[id] = (sondages_dic[id]['resultats'].tolist().index(res))     #Index listes maj. (sinon 0)
+
 
     ##########
     # Attribution des sièges initiale
     # sieges_obtenus = resultat * nb_sieges
     ##########
 
-    partis.pop(-1) #Suppression de "Autres"
-    colors.pop(-1)
+    #partis.pop(-1) #Suppression de "Autres"
+    #colors.pop(-1)
 
     for id in sondages_dic:
-        sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'][:-1] #suppression de "Autres"
-        sondages_dic[id]['sieges'] = (sondages_dic[id]['resultats'] * nb_sieges / 100).astype(int)
+        sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'][:] #suppression de "Autres" #TODO
+        sondages_dic[id]['sieges'] = (sondages_dic[id]['resultats'] * nb_sieges_restant[id] / 100).astype(int)
 
         cpt = 0
-        sondages_dic_sans_nan = sondages_dic
+        sondages_dic_sans_nan = sondages_dic.copy()
         for val in sondages_dic[id]['resultats']:
             if (val < 5) or not (val >= 0):
                 sondages_dic_sans_nan[id]['resultats'][cpt] = 0
                 sondages_dic[id]['sieges'][cpt] = 0 #Aucun siège si résultat < 5% ou si données non disponible (not i>=0)
             cpt += 1
 
-    ##########
-    # Attribution des sièges restants un à un
-    ##########
+        ##########
+        # Attribution des sièges restants un à un
+        ##########
 
-    reste = nb_sieges - sum(sondages_dic[id]['sieges'])
+        reste = nb_sieges - sum(sondages_dic[id]['sieges']) - s[id]
+        while reste > 0:
+            calc = sondages_dic_sans_nan[id]['resultats']/(sondages_dic[id]['sieges']+1)
+            indice_siege_restant = np.argmax(calc)
+            sondages_dic[id]['sieges'][indice_siege_restant] += 1
+            reste = nb_sieges - sum(sondages_dic[id]['sieges']) - s[id]
 
-    while reste > 0:
-        indice_siege_restant = np.argmax(sondages_dic_sans_nan[id]['resultats']/(sondages_dic[id]['sieges']+1))
-        print("sondages_dic[id]['resultats']\n", sondages_dic[id]['resultats'], "sondages_dic[id]['sieges']+1\n", sondages_dic[id]['sieges']+1, "indice_siege_restant\n", indice_siege_restant, "____\n")
-        sondages_dic[id]['sieges'][indice_siege_restant] += 1
-        reste = nb_sieges - sum(sondages_dic[id]['sieges'])
+        sondages_dic[id]['sieges'][index[id]] += s[id] #TODO
 
-    #for id in sondages_dic:
-         #sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'].tolist()
-        # sondages_dic[id]['sieges'] = sondages_dic[id]['sieges'].tolist()
+    for id in sondages_dic:
+        sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'].tolist()
+        sondages_dic[id]['sieges'] = sondages_dic[id]['sieges'].tolist()
 
     if export == True:
         with open('export/data/sondages_avec_sieges.json', 'w') as file:
             json.dump(sondages_dic, file, indent=4)
-
     return partis, sondages_dic
 
 ##########
@@ -181,10 +201,16 @@ def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
 ##########
 # Run
 ##########
+
 dates, donnees, partis, sondages_dic = read_sondages("sondages/sondages_hyp_GJ.csv")
+print("Lecture des sondages : OK")
+
 plot_sondages(dates, donnees, colors, True)
-partis, sondages_dic = calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, False)
-#print(sondages_dic)
-#print("sondage dic:\n", sondages_dic)
+print("Plot sondages : OK")
+
+
+partis, sondages_dic = calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, export=True)
+print("Calcul sièges : OK")
 
 plot_sieges_pie_chart(partis, sondages_dic[max(sondages_dic)]['sieges'], colors, export=True)
+print("Plot sièges : OK")
