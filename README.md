@@ -28,6 +28,15 @@ Seul le dernier sondage est pris en compte pour rélaiser le graphique.
 
 <img src="export/pie_chart_sieges/2019-04-10.png" alt="drawing" width="60%"/>
 
+## Run
+Il suffit d'exécuter le fichier source :
+`python source.py`.
+
+Cela va lire le fichier CSV contenant les sondages, générer le graphique d'intention de vote, calculer le nombre de sièges pour chaque parti et chaque sondage, exporter les données au format JSON, générer le graphique camembert du nombre de sièges.
+
+Requirements :
+* Python 3
+
 ## 
 ### Légende
 
