@@ -106,10 +106,13 @@ def calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, export):
 
     for id in sondages_dic:
         sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'][:-1] #suppression de "Autres"
-        sondages_dic[id]['sieges'] = (sondages_dic[id]['resultats'] * 74 / 100).astype(int)
+        sondages_dic[id]['sieges'] = (sondages_dic[id]['resultats'] * nb_sieges / 100).astype(int)
+
         cpt = 0
+        sondages_dic_sans_nan = sondages_dic
         for val in sondages_dic[id]['resultats']:
             if (val < 5) or not (val >= 0):
+                sondages_dic_sans_nan[id]['resultats'][cpt] = 0
                 sondages_dic[id]['sieges'][cpt] = 0 #Aucun siège si résultat < 5% ou si données non disponible (not i>=0)
             cpt += 1
 
@@ -120,13 +123,14 @@ def calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, export):
     reste = nb_sieges - sum(sondages_dic[id]['sieges'])
 
     while reste > 0:
-        indice_siege_restant = np.argmax(sondages_dic[id]['resultats']/(sondages_dic[id]['sieges']+1))
+        indice_siege_restant = np.argmax(sondages_dic_sans_nan[id]['resultats']/(sondages_dic[id]['sieges']+1))
+        print("sondages_dic[id]['resultats']\n", sondages_dic[id]['resultats'], "sondages_dic[id]['sieges']+1\n", sondages_dic[id]['sieges']+1, "indice_siege_restant\n", indice_siege_restant, "____\n")
         sondages_dic[id]['sieges'][indice_siege_restant] += 1
         reste = nb_sieges - sum(sondages_dic[id]['sieges'])
 
-    for id in sondages_dic:
-         sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'].tolist()
-         sondages_dic[id]['sieges'] = sondages_dic[id]['sieges'].tolist()
+    #for id in sondages_dic:
+         #sondages_dic[id]['resultats'] = sondages_dic[id]['resultats'].tolist()
+        # sondages_dic[id]['sieges'] = sondages_dic[id]['sieges'].tolist()
 
     if export == True:
         with open('export/data/sondages_avec_sieges.json', 'w') as file:
@@ -156,8 +160,7 @@ def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
     fig2, ax2 = plt.subplots(figsize=(8,8))
     partis2=partis
     cpt_suppr=0
-    print(len(partis))
-    print(len(sieges_obtenus))
+
     for i in range(0, len(sieges_obtenus)):
         if sieges_obtenus[i-cpt_suppr]==0: #Suppresion des partis n'ayant pas de siège
             sieges_obtenus = np.delete(sieges_obtenus, i-cpt_suppr)
@@ -165,8 +168,9 @@ def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
             colors.pop(i - cpt_suppr)
             cpt_suppr += 1
 
-    ax2.pie(sieges_obtenus, labels=partis, autopct=lambda p: '{:.0f} sièges'.format(sum(sieges_obtenus)*p/100), startangle=90, colors=colors)
+    wedges, texts, autotexts = ax2.pie(sieges_obtenus, labels=partis, autopct=lambda p: '{:.0f} sièges\n({:.1f} %)'.format(sum(sieges_obtenus)*p/100, p), startangle=90, colors=colors, textprops=dict(color="w", fontsize=13))
     ax2.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax2.legend(wedges, partis, loc="center right", bbox_to_anchor=(1.1, 0))
     fig2.suptitle('Projection nombre de siège, dernier sondage\n(hypothèses liste gilets jaunes et UK dans UE)', fontsize=15)
 
     #plt.show()
@@ -179,6 +183,8 @@ def plot_sieges_pie_chart(partis, sieges_obtenus, colors, export):
 ##########
 dates, donnees, partis, sondages_dic = read_sondages("sondages/sondages_hyp_GJ.csv")
 plot_sondages(dates, donnees, colors, True)
-partis, sondages_dic = calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, True)
+partis, sondages_dic = calcul_sieges_obtenus(partis, sondages_dic, nb_sieges, colors, False)
 #print(sondages_dic)
+#print("sondage dic:\n", sondages_dic)
+
 plot_sieges_pie_chart(partis, sondages_dic[max(sondages_dic)]['sieges'], colors, export=True)
