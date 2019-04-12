@@ -28,6 +28,13 @@ Seul le dernier sondage est pris en compte pour rélaiser le graphique.
 
 <img src="export/pie_chart_sieges/2019-04-10.png" alt="drawing" width="60%"/>
 
+## Run
+Il suffit d'exécuter le fichier `source.py`:
+`python source.py`.
+
+Requirements :
+* Python 3
+
 ## 
 ### Légende
 
