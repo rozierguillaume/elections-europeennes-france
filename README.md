@@ -15,7 +15,7 @@ Les sondages proviennent des principaux instituts français, dont Harris Interac
 
 Intention de vote des électeurs français aux élections européennes de 2019.
 
-<img src="export/sondages/2019-04-20.png" alt="drawing" width="100%"/>
+<img src="export/sondages/2019-04-23.png" alt="drawing" width="100%"/>
 
 ### Nombre de sièges obtenus
 
@@ -26,7 +26,7 @@ Mode de scrutin :
 
 Seul le dernier sondage est pris en compte pour rélaiser le graphique.
 
-<img src="export/pie_chart_sieges/2019-04-20.png" alt="drawing" width="60%"/>
+<img src="export/pie_chart_sieges/2019-04-23.png" alt="drawing" width="60%"/>
 
 ## Run
 Il suffit d'exécuter le fichier source :
